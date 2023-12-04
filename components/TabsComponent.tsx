@@ -30,7 +30,7 @@ const TabsComponent: React.FC = () => {
     useEffect(() => {
         axios
             .get<EventData[]>('https://blockchain-bharat-production.up.railway.app/api/events/')
-            .then((res: { data: any[]; }) => {
+            .then((res: { data: any[] }) => {
                 const sortedEvents = res.data.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
                 setData(sortedEvents);
 
@@ -46,6 +46,18 @@ const TabsComponent: React.FC = () => {
     }, []);
 
     const categoryTags = Array.from(new Set(data.map((item) => item.category)));
+
+    const today = new Date();
+    const currentDate = today.toLocaleString('en-US', { month: 'short', day: 'numeric' });
+
+    const filteredEvents = data.filter((item) => {
+        const eventDate = new Date(item.date).toLocaleString('en-US', { month: 'short', day: 'numeric' });
+
+        return (
+            eventDate === currentDate &&
+            (!selectedTag || item.category === selectedTag)
+        );
+    });
 
     const handleDateClick = (date: string) => {
         setSelectedDate(date);
@@ -64,13 +76,6 @@ const TabsComponent: React.FC = () => {
             handleTagClick(tag as string);
         }
     };
-
-    const filteredEvents = data.filter((item) => {
-        return (
-            (!selectedDate || new Date(item.date).toLocaleString('en-US', { month: 'short', day: 'numeric' }) === selectedDate) &&
-            (!selectedTag || item.category === selectedTag)
-        );
-    });
 
     return (
         <div className="container mx-auto">
